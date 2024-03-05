@@ -13,11 +13,6 @@ dotenv.config()
 const app = express()
 const port = process.env.PORT || 8000
 
-const corsOptions = {
-    origin: true,
-    credentials: true
-}
-
 mongoose.set('strictQuery', false)
 const connect = async() => {
     try{
@@ -30,7 +25,27 @@ const connect = async() => {
 };
 
 app.use(express.json())
-app.use(cors(corsOptions))
+app.use(
+    cors({
+        "version": 2,
+        "builds": [
+          {
+            "src": "./index.js",
+            "use": "@vercel/node"
+          }
+        ],
+        "routes": [
+          {
+            "src": "/(.*)",
+            "dest": "./index.js",
+            "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            "headers": {
+              "Access-Control-Allow-Origin": "*"
+            }
+          }
+        ]
+      })
+)
 app.use(cookieParser())
 app.use('/api/v1/auth', authRoute)
 app.use('/api/v1/tours', tourRoute)
